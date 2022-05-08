@@ -120,22 +120,39 @@ if($type==13) {
 //	echo '<pre>';this is Eko prepaid
 //	print_r($vendData);
 //	echo '</pre>'
-
-					$array = array('creditToken' => chunk_split($output['confirmationCode'],4, ' '),
-							'serialNumber' => $output['transactionId'],
+					$array = array('creditToken' => chunk_split($token, 4, ' '),
+							'serialNumber' => "",
 								'Expires' => "",
 								'value' => $unit );
 					$resd['creditToken'] = $array;
-
+	
 
 						$resd['status'] = 200;
-						$resd['message'] = " SUCCESS ".$output['details']['errorCode'];
+						$resd['message'] = " SUCCESS ".$vendData['details']['errorCode'];
 						$resd['TransactionID'] = $transaction_id;
-						$resd['account'] = $destination;
+						$resd['account'] = $account;
 						$resd['Balance'] = $balance;
-						$resd['referenceID'] = $ref;
+						$resd['referenceID'] = $transref;
 						$resd['amount'] = $amount;
 						$resd['type'] = $type;
+						
+						vend_response($resd);
+
+					// $array = array('creditToken' => chunk_split($output['confirmationCode'],4, ' '),
+					// 		'serialNumber' => $output['transactionId'],
+					// 			'Expires' => "",
+					// 			'value' => $unit );
+					// $resd['creditToken'] = $array;
+
+
+					// 	$resd['status'] = 200;
+					// 	$resd['message'] = " SUCCESS ".$output['details']['errorCode'];
+					// 	$resd['TransactionID'] = $transaction_id;
+					// 	$resd['account'] = $destination;
+					// 	$resd['Balance'] = $balance;
+					// 	$resd['referenceID'] = $ref;
+					// 	$resd['amount'] = $amount;
+					// 	$resd['type'] = $type;
 						
 						vend_response($resd);
 	
@@ -143,18 +160,27 @@ if($type==13) {
 if ($type == 14) {
 	//eko postpaid
 
-  
-
-						$resd['status'] = 200;
-						$resd['message'] = " SUCCESS ".$output['details']['errorCode'];
+  						$resd['status'] = 200;
+						$resd['message'] = " SUCCESS ".$vendData['details']['errorCode'];
 						$resd['TransactionID'] = $transaction_id;
-						$resd['account'] = $destination;
+						$resd['account'] = $account;
 						$resd['Balance'] = $balance;
-						$resd['referenceID'] = $ref;
+						$resd['referenceID'] = $transref;
 						$resd['amount'] = $amount;
 						$resd['type'] = $type;
 						
 						vend_response($resd);
+
+						// $resd['status'] = 200;
+						// $resd['message'] = " SUCCESS ".$output['details']['errorCode'];
+						// $resd['TransactionID'] = $transaction_id;
+						// $resd['account'] = $destination;
+						// $resd['Balance'] = $balance;
+						// $resd['referenceID'] = $ref;
+						// $resd['amount'] = $amount;
+						// $resd['type'] = $type;
+						
+						// vend_response($resd);
     }
 
 
@@ -200,7 +226,7 @@ if($type==16) {
 
 //KEDCO Prepaid
 
-if($type==20) {
+if($type == 17 || $type == 18 || $type == 19 || $type == 20 || $type == 26 || $type == 27) {
 	
 //	echo '<pre>';
 //	print_r($vendData); 
@@ -210,15 +236,15 @@ if($type==20) {
 					$array = array('creditToken' => chunk_split($token, 4, ' '),
 							'serialNumber' => $vendData['details']['tokenAmount'],
 								'Expires' => "",
-								'value' => "" );
+								'value' => $unit );
 
 					   	$resd['creditToken'] = $array;
 						$resd['status'] = 200;
-						$resd['message'] = " SUCCESS ".$vendData['details']['errorCode'];
+						$resd['message'] = " SUCCESS ";
 						$resd['TransactionID'] = $transaction_id;
 						$resd['account'] = $destination;
 						$resd['Balance'] = $balance;
-						$resd['referenceID'] = $ref;
+						$resd['referenceID'] = $transref;
 						$resd['amount'] = $amount;
 						$resd['type'] = $type;
 						
@@ -236,9 +262,10 @@ if($type==21) {
 
 
 					$array = array('creditToken' => chunk_split($token, 4, ' '),
-							'serialNumber' => $vendData['details']['tokenAmount'],
+							'serialNumber' => $externalId,
+							'vat'=>$vat,
 								'Expires' => "",
-								'value' => "" );
+								'value' => $unit );
 
 					   	$resd['creditToken'] = $array;
 						$resd['status'] = 200;
@@ -246,7 +273,7 @@ if($type==21) {
 						$resd['TransactionID'] = $transaction_id;
 						$resd['account'] = $destination;
 						$resd['Balance'] = $balance;
-						$resd['referenceID'] = $ref;
+						$resd['referenceID'] = $externalId;
 						$resd['amount'] = $amount;
 						$resd['type'] = $type;
 						

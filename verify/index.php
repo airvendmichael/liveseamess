@@ -114,13 +114,12 @@ $destination = $account;
 		$pProvider = $presentProvider[0]['provider_id'];
 		if($pProvider == 2){
 
-		require '/var/www/vhosts/api/vas/electricity/itex.php';
-		$output = api_call($requestIEverify, "http://197.253.19.75:8029/vas/ie/validate");
-
+		require '/var/www/vhosts/api/vas/electricity/verify/itexnew.php';
+		$output = api_call($requestverify, "http://197.253.19.76:8019/api/v1/vas/electricity/validation");
 		$output = json_decode($output, true);
-
-		if(!empty($output['name'])){// && empty($output['MaxDemand']) ){
-               $output = array( 'name'=> $output['name'], 'address'=>$output['address'], 'account'=>$destination,'status' =>0, "canVend"=>"1");
+		$out = $output["data"];
+		if(!empty($out['name'])){
+               $output = array( 'name'=> $out['name'], 'address'=>$out['address'], 'account'=>$destination,'status' =>0, "canVend"=>"1");
 
 
 				$response['status'] = 200;
@@ -163,13 +162,12 @@ if($product_type == 11){
 		$pProvider = $presentProvider[0]['provider_id'];
 	if($pProvider == 2){
 		
-		require '/var/www/vhosts/api/vas/electricity/itex.php';
-		$output = api_call($requestIEverify, "http://197.253.19.75:8029/vas/ie/validate");
-
+		require '/var/www/vhosts/api/vas/electricity/verify/itexnew.php';
+		$output = api_call($requestverify, "http://197.253.19.76:8019/api/v1/vas/electricity/validation");
 		$output = json_decode($output, true);
-		
-		if(!empty($output['name']) ){
-               $output = array( 'name'=> $output['name'], 'address'=>$output['address'], 'account'=>$destination,'status' =>0, "canVend"=>"1");
+		$out = $output["data"];
+		if(!empty($out['name'])){// && empty($output['MaxDemand']) ){
+               $output = array( 'name'=> $out['name'], 'address'=>$out['address'], 'account'=>$destination,'status' =>0, "canVend"=>"1");
 
 
 				$response['status'] = 200;
@@ -226,7 +224,7 @@ if($product_type == 12){
 if($product_type == 23){
 		
 		 $account = $destination;
-		require '/var/www/vhosts/api/vas/electricity/itex.php';
+		require '/var/www/vhosts/api/vas/electricity/itexnew.php';
 		$output = api_call($requestIBvend, "http://197.253.19.75:8029/vas/ibedc/validation");
 		$output = json_decode($output, true);
 
@@ -248,50 +246,92 @@ if($product_type == 23){
 //Eko Prepaid
 if($product_type == 13){
 
-	require '/var/www/vhosts/api/vas/electricity/req_abuja_electric.php';
-	$billerPublicId = "8E7485D9-1A67-4205-A49D-691E5B78C20D";
-	$serviceName = "Pre Paid";
+	// require '/var/www/vhosts/api/vas/electricity/req_abuja_electric.php';
+	// $billerPublicId = "8E7485D9-1A67-4205-A49D-691E5B78C20D";
+	// $serviceName = "Pre Paid";
 	
-	$output = verifyDetails($destination,$billerPublicId, $serviceName);
-	$output = $output['details'];
-		if(!empty($output['name'])){
+	// $output = verifyDetails($destination,$billerPublicId, $serviceName);
+	// $output = $output['details'];
+	// 	if(!empty($output['name'])){
 
-		$output = array("name"=>$output['name'],
-						"address"=>$output['address'],
-						"customernumber"=>"",
-					    "account"=>$output['meterNumber']);
-		$response['status'] = 200;
-			$response['message'] = $output;
+	// 	$output = array("name"=>$output['name'],
+	// 					"address"=>$output['address'],
+	// 					"customernumber"=>"",
+	// 				    "account"=>$output['meterNumber']);
+	// 	$response['status'] = 200;
+	// 		$response['message'] = $output;
+	// 	}
+	// 	else{
+	// 		$response['status'] = 503;
+	// 		$response['message'] = "Verifying {$destination} not completed";
+	// 	}
+	// 	vend_response($response);
+
+	require '/var/www/vhosts/api/vas/electricity/verify/itexnew.php';
+		$output = api_call($requestverify, "http://197.253.19.76:8019/api/v1/vas/electricity/validation");
+		$rep = $output;
+		error_log("Response".$output,3,"request.log");
+		$output = json_decode($output, true);
+		$out = $output["data"];
+		error_log($rep,3,'hash.log');
+		if($out['responseCode']=="00"){// && empty($output['MaxDemand']) ){
+               $output = array( 'name'=> $out['name'], 'address'=>$out['address'], 'account'=>$destination,'status' =>0, "canVend"=>"1");
+
+
+				$response['status'] = 200;
+				$response['message'] = $output;
 		}
 		else{
-			$response['status'] = 503;
-			$response['message'] = "Verifying {$destination} not completed";
+				$response['status'] = 503;
+				$response['message'] = "Verifying {$destination} not completed";
 		}
+
 		vend_response($response);
 }
 
 //Eko Postpaid
 if($product_type == 14){
 		
-		require '/var/www/vhosts/api/vas/electricity/req_abuja_electric.php';
-	$billerPublicId = "8E7485D9-1A67-4205-A49D-691E5B78C20D";
+	// 	require '/var/www/vhosts/api/vas/electricity/req_abuja_electric.php';
+	// $billerPublicId = "8E7485D9-1A67-4205-A49D-691E5B78C20D";
 	
-	$serviceName = "Post Paid";
-	$output = verifyDetails($destination,$billerPublicId, $serviceName);
-	$output = $output['details'];
-		if(!empty($output['name'])){
+	// $serviceName = "Post Paid";
+	// $output = verifyDetails($destination,$billerPublicId, $serviceName);
+	// $output = $output['details'];
+	// 	if(!empty($output['name'])){
 
-		$output = array("name"=>$output['name'],
-						"address"=>$output['address'],
-						"customernumber"=>"",
-					    "account"=>$output['meterNumber']);
-		$response['status'] = 200;
-			$response['message'] = $output;
+	// 	$output = array("name"=>$output['name'],
+	// 					"address"=>$output['address'],
+	// 					"customernumber"=>"",
+	// 				    "account"=>$output['meterNumber']);
+	// 	$response['status'] = 200;
+	// 		$response['message'] = $output;
+	// 	}
+	// 	else{
+	// 		$response['status'] = 503;
+	// 		$response['message'] = "Verifying {$destination} not completed";
+	// 	}
+	// 	vend_response($response);
+
+	require '/var/www/vhosts/api/vas/electricity/verify/itexnew.php';
+		$output = api_call($requestverify, "http://197.253.19.76:8019/api/v1/vas/electricity/validation");
+		error_log("Response".$output,3,"request.log");
+		$rep = $output;
+		$output = json_decode($output, true);
+		$out = $output["data"];
+		error_log($rep,3,'hash.log');
+		if($out['responseCode']=="00"){
+               $output = array( 'name'=> $out['name'], 'address'=>$out['address'], 'account'=>$destination,'status' =>0, "canVend"=>"1");
+
+
+				$response['status'] = 200;
+				$response['message'] = $output;
 		}
 		else{
-			$response['status'] = 503;
-			$response['message'] = "Verifying {$destination} not completed";
+				$response['status'] = 503;
+				$response['message'] = "Verifying {$destination} not completed";
 		}
+
 		vend_response($response);
 
 }
@@ -300,13 +340,13 @@ if($product_type == 14){
 if($product_type == 15){
 		
 		 $account = $destination;
-		 require '/var/www/vhosts/api/vas/electricity/itex.php';
-		$output = $output = api_call($requestPHverify, "http://197.253.19.75:8029/vas/phed/validation");
-		$output = json_decode($output, true);
-		
+		 require '/var/www/vhosts/api/vas/electricity/verify/itexnew.php';
+		$output = api_call($requestverify, "http://197.253.19.76:8019/api/v1/vas/electricity/validation");
 
-        if($output['status'] == 1 ){
-             $output = array( 'name'=> $output['name'], 'address'=>$output['address'], 'account'=>$destination, 'meterNumber'=>$destination,'status' =>0, "customernumber"=>$output['productCode']);
+		$output = json_decode($output, true);
+		$out = $output["data"];
+		if(!empty($out['name'])){// && empty($output['MaxDemand']) ){
+               $output = array( 'name'=> $out['name'], 'address'=>$out['address'], 'account'=>$destination,'status' =>0, "canVend"=>"1");
 
 			$response['status'] = 200;
 			$response['message'] = $output;
@@ -322,12 +362,13 @@ if($product_type == 15){
 if($product_type == 16){
 		
 		 $account = $destination;
-		 require '/var/www/vhosts/api/vas/electricity/itex.php';
-		$output = $output = api_call($requestPHverify, "http://197.253.19.75:8029/vas/phed/validation");
+		require '/var/www/vhosts/api/vas/electricity/verify/itexnew.php';
+		$output = api_call($requestverify, "http://197.253.19.76:8019/api/v1/vas/electricity/validation");
+		
 		$output = json_decode($output, true);
-
-        if($output['status'] == 1 ){
-             $output = array( 'name'=> $output['name'], 'address'=>$output['address'], 'meterNumber'=>$destination, 'account'=>$destination, 'status' =>0, "customernumber"=>$output['productCode']);
+		$out = $output["data"];
+		if(!empty($out['name'])){// && empty($output['MaxDemand']) ){
+               $output = array( 'name'=> $out['name'], 'address'=>$out['address'], 'account'=>$destination,'status' =>0, "canVend"=>"1");
 
 			$response['status'] = 200;
 			$response['message'] = $output;
@@ -339,125 +380,130 @@ if($product_type == 16){
 		vend_response($response);
 
 }
+
+//KADUNA, KANO, JOS ELECTRIC
+if($product_type == 17 || $product_type == 18 || $product_type == 19 || $product_type == 20 || $product_type == 26 || $product_type == 27){
+	require '/var/www/vhosts/api/lib/serviceProvider/buyPower.php';
+	$tx = new ByPower();
+	$output = $tx->verifyMeter(["account"=>$account, "type"=>$product_type]);
+	$out = json_decode($output, true);
+	
+	if($out["error"] == false){// && empty($output['MaxDemand']) ){
+               $output = array( 'name'=> $out['name'], 'address'=>$out['address'], 'account'=>$destination,'status' =>0, "canVend"=>"1");
+
+			$response['status'] = 200;
+			$response['message'] = $output;
+		}
+		else{
+			$response['status'] = 503;
+			$response['message'] = "Verifying {$destination} not completed";
+		}
+		vend_response($response);
+
+}
+
 
 //KEDCO Prepaid
-if($product_type == "20"){
-		
-		 require '/var/www/vhosts/api/vas/electricity/fet.php';
-                $fet = callkedco(0,$destination,0,1);
-
-             if(is_array($fet) && $fet['responseCode'] == 0){
-             	$custid = $fet['customerId'];
-             	 $arr = explode("|",$custid);
-                $output = array(
-                  'address'=>$arr[1], 'name'=>$fet["message"],'customernumber'=>$custid,'account'=>$destination);
-
-			$response['status'] = 200;
-			$response['message'] = $output;
-		}
-		else{
-			$response['status'] = 503;
-			$response['message'] = "Verifying {$destination} not completed";
-		}
-		vend_response($response);
-}
 
 
 
 
 //EEDC Prepaid
 if($product_type == 21){
-		$presentProvider = getPresentProvider($type, $mysqli);
-    $pProvider = $presentProvider[0]['provider_id'];
-    if($pProvider == 4){
-		 require '/var/www/vhosts/api/vas/electricity/fet.php';
-                $mode='PRE';
-                $fet = callenugudc(0,$destination,0, 1,0,$mode);
-                //print_r($fet);
-        if(!empty($fet['customerId'])){
-                $custid = $fet['customerId'];
+	error_log("EEDC\n", 3, 'request.log');
+	require '/var/www/vhosts/api/lib/serviceProvider/EEDC.php';
+
+	$tx = new EEDC(21);
+	$resp = $tx->verify(["account"=>$account]);
+	$resp = json_decode($resp);
+	error_log("EEDC\n".$account.json_encode($resp), 3, 'request.log');
+	if($resp->responseCode == 200){
+		
+		 $output = ["name"=>$resp->customer->firstName." ".$resp->customer->lastName, 
+		            "address"=>$resp->customer->address, 
+		            "customernumber"=>$resp->customer->accountNumber, 
+		            "account"=>$resp->customer->meterNumber,
+		            "arrears"=>$resp->customer->arrearsBalance,
+				"category"=>$resp->customer->userCategory];
+		  	$response['status'] = 200;
+			$response['message'] = $output;
+		}
+		else{
+			$response['status'] = 503;
+			$response['message'] = "Verifying {$destination} not completed";
+		}
+		vend_response($response);
+		// $presentProvider = getPresentProvider($type, $mysqli);
+  //   $pProvider = $presentProvider[0]['provider_id'];
+  //   if($pProvider == 4){
+		//  require '/var/www/vhosts/api/vas/electricity/fet.php';
+  //               $mode='PRE';
+  //               $fet = callenugudc(0,$destination,0, 1,0,$mode);
+  //               //print_r($fet);
+  //       if(!empty($fet['customerId'])){
+  //               $custid = $fet['customerId'];
               
-                $arr = explode("|",$custid);
-                $output = array(
-                  'address'=>$arr[4], 'name'=>$arr[3],'customernumber'=>$custid,'account'=>$destination);
-			$response['status'] = 200;
-			$response['message'] = $output;
-		}
-		else{
-			$response['status'] = 503;
-			$response['message'] = "Verifying {$destination} not completed";
-		}
-		vend_response($response);
-    }
-    if($pProvider == 5){
-        include '/var/www/vhosts/api/vas/electricity/shagoapi.php';    
-    if($type == 21){$meterType = "PREPAID";}
-        if($type == 22){$meterType = "POSTPAID";}
-        $content = array("serviceCode"=>"AOV","disco"=>"EEDC","meterNo"=>$account,"type"=>$meterType);
-        $resp = shagoApi($content);
-        $resp = json_decode($resp,true);
+  //               $arr = explode("|",$custid);
+  //               $output = array(
+  //                 'address'=>$arr[4], 'name'=>$arr[3],'customernumber'=>$custid,'account'=>$destination);
+		// 	$response['status'] = 200;
+		// 	$response['message'] = $output;
+		// }
+		// else{
+		// 	$response['status'] = 503;
+		// 	$response['message'] = "Verifying {$destination} not completed";
+		// }
+		// vend_response($response);
+  //   }
+  //   if($pProvider == 5){
+  //       include '/var/www/vhosts/api/vas/electricity/shagoapi.php';    
+  //   if($type == 21){$meterType = "PREPAID";}
+  //       if($type == 22){$meterType = "POSTPAID";}
+  //       $content = array("serviceCode"=>"AOV","disco"=>"EEDC","meterNo"=>$account,"type"=>$meterType);
+  //       $resp = shagoApi($content);
+  //       $resp = json_decode($resp,true);
        
-        if($resp['status'] == 200){
-            $output = array(
-		  'address'=>$resp['customerAddress'],'name'=>$resp['customerName'],'account'=>$resp['meterNo']);
-            $response['status'] = 200;
-			$response['message'] = $output;
-        }
-		else{
-			$response['status'] = 503;
-			$response['message'] = "Verifying {$destination} not completed";
-		}
-		vend_response($response);
-        }
+  //       if($resp['status'] == 200){
+  //           $output = array(
+		//   'address'=>$resp['customerAddress'],'name'=>$resp['customerName'],'account'=>$resp['meterNo']);
+  //           $response['status'] = 200;
+		// 	$response['message'] = $output;
+  //       }
+		// else{
+		// 	$response['status'] = 503;
+		// 	$response['message'] = "Verifying {$destination} not completed";
+		// }
+		// vend_response($response);
+  //       }
     }
 
 
 
 //EEDC Postpaid
 if($product_type == 22){
-    $presentProvider = getPresentProvider($type, $mysqli);
-    $pProvider = $presentProvider[0]['provider_id'];
-    if($pProvider == 4){
-		 require '/var/www/vhosts/api/vas/electricity/fet.php';
+   	error_log("EEDC\n", 3, 'request.log');
+	require '/var/www/vhosts/api/lib/serviceProvider/EEDC.php';
 
-                $mode='POST';
-                $fet = callenugudc(0,$destination,0, 1,0,$mode);
-
-       if(!empty($fet['customerId'])){
-                $custid = $fet['customerId'];
-              
-                $arr = explode("|",$custid);
-                $output = array(
-                  'address'=>$arr[4], 'name'=>$arr[3],'customernumber'=>$custid,'account'=>$destination);
-			$response['status'] = 200;
+	$tx = new EEDC(22);
+	$resp = $tx->verify(["account"=>$account]);
+	$resp = json_decode($resp);
+	error_log("EEDC\n".$account.json_encode($resp), 3, 'request.log');
+	if($resp->responseCode == 200){
+		
+		 $output = ["name"=>$resp->customer->firstName." ".$resp->customer->lastName, 
+		            "address"=>$resp->customer->address, 
+		            "customernumber"=>$resp->customer->accountNumber, 
+		            "account"=>$account,
+		            "arrears"=>$resp->customer->arrearsBalance,
+				"category"=>$resp->customer->userCategory];
+		  	$response['status'] = 200;
 			$response['message'] = $output;
-		}
-		else{
+	}
+	else{
 			$response['status'] = 503;
 			$response['message'] = "Verifying {$destination} not completed";
-		}
-		vend_response($response);
-    }
-    if($pProvider == 4){
-    include '/var/www/vhosts/api/vas/electricity/shagoapi.php';    
-    if($type == 21){$meterType = "PREPAID";}
-        if($type == 22){$meterType = "POSTPAID";}
-        $content = array("serviceCode"=>"AOV","disco"=>"EEDC","meterNo"=>$account,"type"=>$meterType);
-        $resp = shagoApi($content);
-        $resp = json_decode($resp,true);
-        if($resp['status'] == 200){
-            $output = array(
-		  'address'=>$resp['customerAddress'],'name'=>$resp['customerName'],'account'=>$resp['meterNo']);
-            $response['status'] = 200;
-			$response['message'] = $output;
-        }
-		else{
-			$response['status'] = 503;
-			$response['message'] = "Verifying {$destination} not completed";
-		}
-		vend_response($response);
-        }
-
+	}
+	vend_response($response);
 }
 
 //AEDC Prepaid
@@ -468,41 +514,76 @@ if($product_type == 24){
 
 		$pProvider = $presentProvider[0]['provider_id'];
 	if($pProvider == 2){
-		require '/var/www/vhosts/api/vas/electricity/itex.php';
-		$output = api_call($requestABverify, "http://197.253.19.75:8029/vas/abuja/validation");
-		$output = json_decode($output, true);
-		if($output['status'] == 1){
+		// require '/var/www/vhosts/api/vas/electricity/itex.php';
+		// $output = api_call($requestABverify, "http://197.253.19.75:8029/vas/abuja/validation");
+		// $output = json_decode($output, true);
+		// if($output['status'] == 1){
 
-		$output = array("name"=>$output['name'],
-						"address"=>$output['address'],
-						"customernumber"=>$output['productCode'],
-					    "account"=>$destination);
-		$response['status'] = 200;
-			$response['message'] = $output;
-		}else{
-			$response['status'] = 503;
-			$response['message'] = "Verifying {$destination} not completed";
+		// $output = array("name"=>$output['name'],
+		// 				"address"=>$output['address'],
+		// 				"customernumber"=>$output['productCode'],
+		// 			    "account"=>$destination);
+		// $response['status'] = 200;
+		// 	$response['message'] = $output;
+		// }else{
+		// 	$response['status'] = 503;
+		// 	$response['message'] = "Verifying {$destination} not completed";
+		// }
+
+		require '/var/www/vhosts/api/vas/electricity/verify/itexnew.php';
+		$output = api_call($requestverify, "http://197.253.19.76:8019/api/v1/vas/electricity/validation");
+		$output = json_decode($output, true);
+		$out = $output["data"];
+		if(!empty($out['name'])){
+               $output = array( 'name'=> $out['name'], 'address'=>$out['address'], 'account'=>$destination,'status' =>0, "canVend"=>"1");
+
+
+				$response['status'] = 200;
+				$response['message'] = $output;
+		}
+		else{
+				$response['status'] = 503;
+				$response['message'] = "Verifying {$destination} not completed";
 		}
 	}
 	if($pProvider == 3){
-			require '/var/www/vhosts/api/vas/electricity/req_abuja_electric.php';
-		$serviceName = "Search by meter number (mr)";
-		$billerPublicId = "13B5041B-7143-46B1-9A88-F355AD7EA1EC";
-		$json_data = verifyDetails($destination,$billerPublicId, $serviceName);
+		// 	require '/var/www/vhosts/api/vas/electricity/req_abuja_electric.php';
+		// $serviceName = "Search by meter number (mr)";
+		// $billerPublicId = "13B5041B-7143-46B1-9A88-F355AD7EA1EC";
+		// $json_data = verifyDetails($destination,$billerPublicId, $serviceName);
 	
-		if(is_array($json_data["details"])){
-			$data = $json_data["details"];
+		// if(is_array($json_data["details"])){
+		// 	$data = $json_data["details"];
+		// 	$output = array(
+		// 					"name"=> $data["name"],
+		// 					"address"=>$data['address'],
+		// 					"customernumber"=>"",
+		// 					"account"=>$destination);
+		// $response["status"] = 200;
+		// $response["message"] = $output;
+		// 	}
+		// 	else{
+		// 	$response['status'] = 503;
+		// 	$response['message'] = "Verifying {$destination} not completed";
+		// }
+
+		require '/var/www/vhosts/api/lib/serviceProvider/byPower.php';
+		$tx = new ByPower();
+
+		$data = ["account"=>$account, "type"=>$type];
+		$output =  $tx->verifyMeter($data);
+		error_log("AEDC\n".$output, 3, 'request.log');
+		$data = json_decode($output, true);
+		if($data['responseCode'] == 100){
 			$output = array(
 							"name"=> $data["name"],
 							"address"=>$data['address'],
 							"customernumber"=>"",
+							"minVendAmoun"=>$data["minVendAmoun"],
 							"account"=>$destination);
-		$response["status"] = 200;
-		$response["message"] = $output;
-			}
-			else{
-			$response['status'] = 503;
-			$response['message'] = "Verifying {$destination} not completed";
+			$response["status"] = 200;
+			$response["message"] = $output;
+
 		}
 	}
 		
@@ -647,3 +728,5 @@ if($product_type == "100"){
 		vend_response($response);
 }
 // TODO - Postpaid: calculate balance due for account
+
+

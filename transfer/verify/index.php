@@ -10,7 +10,9 @@ include '../../function/db.inc.php';
 include '../../function/func.inc.php';
 include '../../function/json_func.php';
 include '../function.php';
-
+include '../providus.php';
+include '../provider.php';
+include '../lib/shagoPay.php';
 
 //The Server IP Address
 $request_ip         = print_r($_SERVER['REMOTE_ADDR'],1);
@@ -23,11 +25,11 @@ $pass = $query_st['password'];
 $hash = $query_st['hash'];
 
 $date = date("Y-m-d");
-$log_string = "\n***********************************\n\n" . $date .'REQUEST: ' . $request_ip .
+$log_string = "\n***********************************\n\n" . $date .'REQUEST: ' . json_encode($_SERVER) .
                                 "\n" . 'user: ' . $user ."\n".$pass.
                                 "\n\n";
 
-error_log($log_string,3,'vtu2_request.log');
+error_log($log_string,3,'request.log');
 
 
 
@@ -84,17 +86,59 @@ $response['status'] = 403;
 //Call Banks
 $bank = $data['details']['settlementBank'];
 $account = $data['details']['account'];
+if($provider == 1){
+//Payant
+	$payload = array("settlement_bank"=>$bank, "account_number"=>$account);
+	$payload = json_encode($payload);
+	$output = verifyAcc($payload);
+	$output = json_decode($output, TRUE);
+	if($output['status'] == "success"){
+		$status = TRUE;
+		$data = $output['data'];
+	}
+}
+elseif($provider ==2){
+	//Providus
+	$mx = new ProvidusTransfer;
+	$data =  ["accountNumber"=>$account, "bankCode"=>$bank];
+	$output = $mx->verifyAccount($data);
+	$output = json_decode($output, TRUE);
+	if($output["responseCode"]=="00"){
+		$status = TRUE;
+		$data = array('settlement_bank'=>$bank, 'account_number'=>$account, "account_name"=>$output['accountName']);
+	}
+}
+else{
+	$type = 1000;
+	$tx = new SHAGOAPI($type, 0);
+	$data  =  $tx->product();
+	$data = json_decode($data, true);
 
-$payload = array("settlement_bank"=>$bank, "account_number"=>$account);
+	$data = ["amount" =>"100",
+        "bin"=> $bank,
+        "bank_account"=>$account,
+        "bank_name" => "GT Bank"];
 
-$payload = json_encode($payload);
-$output = verifyAcc($payload);
+$tm = new SHAGOAPI($type, 1);
 
-$output = json_decode($output, TRUE);
+$response =  $tm->verify($data);
+//$response = json_decode($response, true);
+error_log($response,3 , 'request.log');
+$response = json_decode($response, true);
+if($response["status"]== "200"){
+    $status =TRUE;
+    $data = array('settlement_bank'=>$response["bin"], 'account_number'=>$account, "account_name"=>$response['customerName']);
+}
 
-if($output['status'] == "success"){
+}
+
+
+	
+
+
+if($status == TRUE){
 				$resd['status'] = 200;
-				$resd['message'] = $output['data'];
+				$resd['message'] = $data;
 				vend_response($resd);
 }
 else{

@@ -1,0 +1,6 @@
+<?php
+include "/var/www/vhosts/api/secured/seamless/transfer/providus.php";
+$mx = new ProvidusTransfer;
+$response = $mx->accountBalance();
+$response = $mx->checkTransaction(["reference"=>""]
+print_r($response);

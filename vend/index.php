@@ -21,7 +21,7 @@ $pass = $query_st['password'];
 $hash = $query_st['hash'];
 
 $date = date("Y-m-d");
-$log_string = "\n***********************************\n\n" . $date .'REQUEST: ' . $request_ip .
+$log_string = "\n***********************************\n\n" . $date.$hash.'REQUEST: ' . $request_ip .
                                 "\n" . 'user: ' . $user ."\n".$pass.
                                 "\n\n";
 
@@ -72,6 +72,7 @@ $hash = strtolower($hash);
 $test = hash('sha512', $test);
 $test = strtolower($test);
 if($test != $hash){
+ error_log("\n Your Hash".$hash." \n Our Hash: ".$test."\n Vendor Detail: ".json_encode($vendor)."\n Request: ".$input,3, "request.log");
 $response['status'] = 403;
 	$response['message'] = "Failed Third Level Verification";
 	vend_response($response);
@@ -234,8 +235,13 @@ require "call.php";
 
 
 $date = date('Y-m-d H:i:s');
-$log_string = "\n\n" . $date . ' |End Processor include: '.$net['airtime_processor']. "\n";
+$log_string = "\n\n" . $date . ' |End Processor include: '.$report.$net['airtime_processor']. "\n";
 error_log($log_string,3,'vtu2_request.log');
+$arr = [10,11,13,15,16,14,24];
+if(in_array($type, $arr)){
+	$log_string = "\n\n" . $date . ' |Product Log: '.$report."\n";
+	error_log($log_string,3,'request.log');
+}
 
 /*
 print_r(
@@ -315,7 +321,7 @@ $log_res        = mysqli_query($mysqli, $log_sql);
 //echo $log_sql;
 //print mysqli_error($mysqli);
 
-
+error_log("Log Resp: ".mysqli_error($mysqli), 3, "vtu2_request.log");
 
 // Log Commissions
 // Get commission for vendor
@@ -328,8 +334,9 @@ if($result == '0') {
 				if($network_id != 6) {
 						// Vendor Comm
 						$wallet_pre = getVendorBalance($vendor['vendor_id'],$mysqli);
+						$distributor_comm = getDistributorComm($vendor['distributor_id'],$network_id,$mysqli);
 						$vendor_comm       = getVendorComm($vendor['vendor_id'],$network_id,$mysqli);
-						
+						if($vendor_comm['commission']>$distributor_comm['commission']){$vendor_comm["commission"] = $distributor_comm["commission"];}
 						if($vendor['user_type'] == 1) {
 							// Pre-paid - update wallet balance
 							//echo "DEBUG: DEDUCTING CREDIT: ".$vendor['vendor_id']." : ".$amt;
@@ -383,7 +390,16 @@ if($result == '0') {
 			                $wallet_pre = getVendorBalance($vendor['vendor_id'],$mysqli);
 	
 		// Vendor Comm
-		$vendor_comm       = getVendorElectricityComm($vendor['vendor_id'],$type,$mysqli);
+		    if($demand_type > 0) {
+		    	$vendor_comm       = getVendorElectricityComm($vendor['vendor_id'],$demand_type,$mysqli);
+		    	// Get commission for Distributor
+				$distributor_comm = getDistributorElectricityComm($vendor['distributor_id'],$demand_type,$mysqli);
+		    }
+		    else{ 
+		    	$vendor_comm       = getVendorElectricityComm($vendor['vendor_id'],$type,$mysqli);
+		    	$distributor_comm = getDistributorElectricityComm($vendor['distributor_id'],$type,$mysqli);
+		    }          
+		
 		
 		if($vendor['user_type'] == 1) {
 			// Pre-paid - update wallet balance
@@ -393,10 +409,13 @@ if($result == '0') {
 		}	
 		
 				
-		// Get commission for Distributor
-		$distributor_comm = getDistributorElectricityComm($vendor['distributor_id'],$type,$mysqli);
-		$nc               = getProviderComm($type,$mysqli);
+		
 
+		if($demand_type > 0){
+			$nc               = getProviderComm($demand_type,$mysqli);
+		}else{
+			$nc               = getProviderComm($type,$mysqli);
+		}
 		$dist_comm_value    = $amount * ($distributor_comm['commission']/100);
 		$carrier_comm_value = $amount * ($nc['base_rate']/100);
 		

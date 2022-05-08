@@ -12,7 +12,7 @@ include '../../function/json_func.php';
 include '../function.php';
 include '../providus.php';
 include '../provider.php';
-include '../lib/shagoPay.php';
+
 //The Server IP Address
 $request_ip         = print_r($_SERVER['REMOTE_ADDR'],1);
 
@@ -90,7 +90,7 @@ if($provider ==1){
 			$data =$output['data'];
 		}
 	
-}elseif($provider == 2){
+}else{
 	//Call Bank Providus
 	$mx = new ProvidusTransfer;
 	$output = $mx->getBankList();
@@ -101,23 +101,6 @@ if($provider ==1){
 		$data = $output['banks'];
 	}
 
-}else{
-	$type = 1000;
-
-$tx = new SHAGOAPI($type, 0);
-$data  =  $tx->product();
-$data = json_decode($data, true);
-
-$response = [];
-
-
-foreach($data as $d){
-    $response[] = ["bankName"=>$d["name"], "bankCode"=>$d["bin"]];
-
-
-}
-	$status = TRUE;
-	$data = $response;
 }
 
 

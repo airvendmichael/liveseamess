@@ -131,7 +131,7 @@ if ($type == 14) {
 
 //KEDCO
 
-if($type==20) {
+if($type == 17 || $type == 18 || $type == 19 || $type == 20 || $type == 26 || $type == 27) {
 	$destination = $data['details']['account'];
 	$customername = $data['details']['customername'];
 	$amount      = $data['details']['amount'];

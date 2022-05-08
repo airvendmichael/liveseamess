@@ -10,7 +10,9 @@ include '../../function/db.inc.php';
 include '../../function/func.inc.php';
 include '../../function/json_func.php';
 include '../function.php';
-
+include '../providus.php';
+include '../provider.php';
+include '../lib/shagoPay.php';
 
 //The Server IP Address
 $request_ip         = print_r($_SERVER['REMOTE_ADDR'],1);
@@ -85,7 +87,7 @@ $bank = $data['details']['settlementBank'];
 $account = $data['details']['account'];
 $destination = $account;
 $amount = $data['details']['amount'];
-$amount = $amount.".00";
+$amount = number_format((float)$amount, 2, '.', '');
 $remark = $data['details']['remark'];
 $ref = $data['details']['ref'];
 
@@ -190,11 +192,88 @@ $time_start = microtime(true);
 
 
 $date = date('Y-m-d H:i:s');
-$log_string = "\n\n" . $date . ' |Start Processor include: '.$net['airtime_processor']. "\n";
+$log_string = "\n\n" . $date . ' |Start Processor include: '.json_encode($payload). "\n";
 error_log($log_string,3,'vtu2_request.log');
 
 //***************************************************************************
-$output = transferMoney($payload);
+if($provider ==1){
+	// Payant
+	$output = transferMoney($payload);
+	$output = json_decode($output, TRUE);
+	if($output['status'] == "success"){
+		$status = TRUE;
+		$res= $output['data'];
+		$settlement_bank=$res["settlement_bank"];
+		$account_name=$res["account_name"];
+		$account_number=$res["account_number"];
+		$updated_at=$res["updated_at"];
+		$created_at=$res["created_at"];
+		$gateway_response=$res["gateway_response"];
+		$disburse_status=$res["disburse_status"];
+		$disburse_ref=$res["disburse_ref"];
+
+		$response = array("settlement_bank"=>$settlement_bank,
+			"transaction_id"=>$transaction_id,
+			"account_name"=>$account_name,
+			"account_number"=>$account_number,
+			"gateway_response"=>$gateway_response,
+			"disburse_status"=>$disburse_status,
+			"disburse_ref"=>$disburse_ref);
+	}
+
+}
+elseif($provider == 2){
+	//Providus
+
+	$mx = new ProvidusTransfer;
+	$data =  ["accountNumber"=>$account, "bankCode"=>$bank];
+	$resp = $mx->verifyAccount($data);
+	$resp = json_decode($resp, TRUE);
+	$data =  ["name"=>$resp['accountName'],"amount"=>$amount, "narration"=>$remark, "accountNumber"=>$account, "bankCode"=>$bank, "ref"=>"CPL-".$transaction_id];
+	$output = $mx->transferFund($data);
+	$output = json_decode($output, TRUE);
+	$load = $mx->load;
+	if($output["responseCode"] === "00" || empty($output)){
+		$status = TRUE;
+
+		$response = array("settlement_bank"=>$bank,
+			"transaction_id"=>$transaction_id,
+			"account_name"=>$data["name"],
+			"account_number"=>$account,
+			);
+	}
+
+}
+else{
+$type = 1000;
+$tm = new SHAGOAPI($type, 1);
+
+$data = ["amount" =>$amount,
+        "bin"=> $bank,
+        "bank_account"=>$account,
+        "bank_name" => "GT Bank"];
+
+
+$response =  $tm->verify($data);
+//print_r($response);
+$resp = json_decode($response);
+error_log($response."\n",3,'request.log');
+$data["reference"] = $resp->reference;
+$data["transaction_id"] = $transaction_id;
+
+$tn = new SHAGOAPI($type, 2);
+$output =  $tn->vendMoney($data);
+$response = json_decode($output);
+$rep = ["300","301","100","310", "500","501"];
+if(!in_array($response->status, $rep)){
+    $status = TRUE;
+    $response  =  array("settlement_bank"=>$bank, "transaction_id"=>$transaction_id, "account_number"=>$account);
+}
+
+
+}
+
+
 //**************************************************************************
 
 $response = $output;
@@ -202,12 +281,12 @@ $response = $output;
 //print_R($response);
 //exit();
 $date = date('Y-m-d H:i:s');
-$log_string = "\n\n" . $date . ' |End Processor include: '.$net['airtime_processor']. "\n";
+$log_string = "\n\n" . $date . ' |payload: '.json_encode($data). "\n".$load."\nOutput: ".json_encode($output);
 error_log($log_string,3,'vtu2_request.log');
 $time_end  = microtime(true);
 $et        = $time_end - $time_start;
-$output = json_decode($output, TRUE);
-if($output['status'] == "success"){
+
+if($status == TRUE){
 	$result = 0;
 }
 else{
@@ -294,24 +373,7 @@ if($result == 0){
 
                 $log_res        = mysqli_query($mysqli,$log_sql);
 
-$settlement_bank=$res["settlement_bank"];
-$account_name=$res["account_name"];
-$account_number=$res["account_number"];
-$updated_at=$res["updated_at"];
-$created_at=$res["created_at"];
-$gateway_response=$res["gateway_response"];
-$disburse_status=$res["disburse_status"];
-$disburse_ref=$res["disburse_ref"];
 
-$response = array("settlement_bank"=>$settlement_bank,
-	"transaction_id"=>$transaction_id,
-"account_name"=>$account_name,
-"account_number"=>$account_number,
-"updated_at"=>$updated_at,
-"created_at"=>$created_at,
-"gateway_response"=>$gateway_response,
-"disburse_status"=>$disburse_status,
-"disburse_ref"=>$disburse_ref);
 				$resd['status'] = 200;
 				$resd['tranasactionID'] = $transaction_id;
 				$resd['message'] = $response;
@@ -322,3 +384,4 @@ else{
 	$resd['message'] = $output;
 	vend_response($resd);
 }
+
