@@ -3,11 +3,11 @@
 //Class SHago Pay. This contains all shago transactions.
 class SHAGOAPI{
 
-    //private $url = "http://34.68.51.255/shago/public/api/test/b2b";
+    private $url = "http://test.shagopayments.com/public/api/test/b2b";
     
-    //private $hash = "c1df88d180d0163fc53f4efde6288a2c87a2ceaaefae0685fd4a8c01b217e70d";
-     private $hash = "3e91d508e1309963e29074a3a61d1a1c5810854fe5ec246f6c1c673e4f166f24";
-     private $url = "https://shagopayments.com/api/live/b2b";
+    private $hash = "c1df88d180d0163fc53f4efde6288a2c87a2ceaaefae0685fd4a8c01b217e70d";
+    // private $hash = "3e91d508e1309963e29074a3a61d1a1c5810854fe5ec246f6c1c673e4f166f24";
+    // private $url = "https://shagopayments.com/api/live/b2b";
     public $payload;
     private $type="";
     private $serviceCode="";
@@ -21,16 +21,18 @@ class SHAGOAPI{
             if($type == 130){ $this->serviceCode="NBV";} //NTEL
             if($type == 41){ $this->serviceCode="SHL";} //SHOW MAX
             if($type == 1000){ $this->serviceCode="WBL";} //MONEY TRANSFER
-            if($type == 2){  //DATA
-                $this->serviceCode='VDA';
-                $this->type='VTU';
-            }
+           
         }
         if($stat == 1){
             if($type == 21){ $this->type = "PREPAID"; $this->serviceCode = "AOV";  $this->disco = "EEDC";}
             if($type == 22){ $this->type = "POSTPAID"; $this->serviceCode = "AOV"; $this->disco = "EEDC";}
             if($type >=101 && $type <=120){$this->type=$bet[$type]; $this->serviceCode="BEV";} //BET
             if($type == 1000){ $this->serviceCode="WBV";} //MONEY TRANSFER
+            
+            if($type == 2){  //DATA
+                $this->serviceCode='VDA';
+                $this->type='VTU';
+            }
         }
         if($stat == 2){
             if($type == 21){ $this->type = "PREPAID"; $this->serviceCode = "AOB";  $this->disco = "EEDC";}
@@ -90,10 +92,8 @@ class SHAGOAPI{
             if($data['networkid'] == 4){ $network  = '9mobile';}
 
         }
-        //  $this->payload = array("reference"=>$data["transaction_id"],"request_id"=>$data["id"],"amount"=>$data["amount"],"address"=>$data["customeraddress"],
-        //  "name"=>$data["customername"],"code"=>$data["customernumber"],"meterNo"=>$data["account"],"customerId"=>$data["account"],"serviceCode"=>$this->serviceCode,"disco"=>$this->disco,"type"=>$this->type);
-        $this->payload = array("reference"=>$data["transaction_id"],"request_id"=>$data["transaction_id"],"amount"=>$data["amount"],"address"=>$data["customeraddress"],
-        "name"=>$data["customername"],"code"=>$data["customernumber"], "network"=>$network,"phone"=>$data["account"],"meterNo"=>$data["account"],"customerId"=>$data["account"],"serviceCode"=>$this->serviceCode,"disco"=>$this->disco,"type"=>$this->type, "vend_type"=> $this->type);
+         $this->payload = array("reference"=>$data["transaction_id"],"request_id"=>$data["transaction_id"],"amount"=>$data["amount"],"address"=>$data["customeraddress"],
+         "name"=>$data["customername"],"code"=>$data["customernumber"], "network"=>$network,"phone"=>$data["account"],"meterNo"=>$data["account"],"customerId"=>$data["account"],"serviceCode"=>$this->serviceCode,"disco"=>$this->disco,"type"=>$this->type, "vend_type"=> $this->type);
          return $this->shagoApi();
     }
 
@@ -103,5 +103,4 @@ class SHAGOAPI{
         return $this->shagoApi();
     }
 }
-
 
