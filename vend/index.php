@@ -28,19 +28,18 @@ $log_string = "\n***********************************\n\n" . $date.$hash.'REQUEST
 error_log($log_string,3,'vtu2_request.log');
 
 
-
-
-
 //Getting the content
 $input= file_get_contents('php://input');
 
 $data = json_decode($input, TRUE);
 //Verify Server Request Method
 if($_SERVER['REQUEST_METHOD'] != "POST"){
+
 	$response['status'] = 405;
 	vend_response($response);
 }
 
+echo 'got here';
 //Get If Vendor Exist now Includes IP Address.
 //First Level Verification
 $pass = get_Password($pass);

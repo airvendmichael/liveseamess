@@ -21,7 +21,7 @@ $query_st = getallheaders();
 $user = $query_st['username'];
 $pass = $query_st['password'];
 $hash = $query_st['hash'];
-
+print_r($query_st);
 
 //Getting the content
 $data= file_get_contents('php://input');
@@ -40,7 +40,8 @@ $pass = get_Password($pass);
 
 
 $vendor = getVendorAuth($user,$pass,$mysqli);
-
+//print_r(mysqli_error($mysqli));
+//exit();
 $date = date('Y-m-d');
 if($vendor === FALSE) {
 	$response['status'] = 401;
