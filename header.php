@@ -20,7 +20,6 @@ $query_st = getallheaders();
 $user = $query_st['Username'];
 $pass = $query_st['Password'];
 $hash = $query_st['Hash'];
-print_r($query_st);
 
 //Getting the content
 $data= file_get_contents('php://input');
