@@ -26,7 +26,6 @@ $account = $data['details']['account'];
 $type = $product_type;
 $destination = $account;
 //Ikeja Postpaid
-print_r($data);
 	if($product_type == 10){
 
 		$presentProvider = getPresentProvider($type, $mysqli);
@@ -538,10 +537,8 @@ if($product_type == 25){
 //DSTV
 if($product_type == 30){
 		$smartcard = $destination;
-	echo 'Am Here';
 		require '/var/www/vhosts/api/vas/airVend/baxi/req_dstv_verify.php';
 		$output = json_decode($output, true);
-		print_r($output);
 		$output = $output['details'];
 		if($output['customerType'] != 'GOTVSUD' && !empty($output['customerType'])){
 			$name= $output['firstName'].' '.$output['lastName'];
