@@ -8,7 +8,33 @@ if($type <= 4 || $type == 27){
 	}
 	else{
 
-        	include '/var/www/vhosts/api/airtel/ussd/processor/'. $net['airtime_processor'];
+        	// include '/var/www/vhosts/api/airtel/ussd/processor/'. $net['airtime_processor'];
+			include '../transfer/lib/shagoPay.php';
+
+			$data['networkid'] = $network_id;
+			$data['amount'] = $amount;
+			$data['account'] =$account;
+			$data['transaction_id'] = $transaction_id;
+			
+			$tn = new SHAGOAPI($type, 2);
+			$output =  $tn->vend($data);
+			$result = $response;
+
+			$response = json_decode($output);
+			$rep = ["300","301","100","310", "500","501"];
+			if(!in_array($response->status, $rep)){
+				$status = TRUE;
+				$result      = $response;
+				$result_txt  = $response->message;
+				$response = $output;
+			}
+			else{
+				$error       = $response->status;
+				$result_txt = $response->message;
+				$result = 99999999;
+			}
+			
+		
 	}
 	if(strlen($result) == 0) {
 	$result = 99999999;
