@@ -26,7 +26,6 @@ $account = $data['details']['account'];
 $type = $product_type;
 $destination = $account;
 //Ikeja Postpaid
-print_r($data);
 	if($product_type == 10){
 
 		$presentProvider = getPresentProvider($type, $mysqli);
