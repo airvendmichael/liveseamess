@@ -8,6 +8,7 @@ include '../header.php';
 /*
 	MNO Transactions
 */
+
 $product_type = $data['details']['type'];
 
 $type = $product_type;

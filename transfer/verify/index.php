@@ -6,7 +6,8 @@ include '../providus.php';
 include '../provider.php';
 include '../lib/shagoPay.php';
 //The Server IP Address
-
+$input= file_get_contents('php://input');
+$data = json_decode($input, true);
 //Call Banks
 $bank = $data['details']['settlementBank'];
 $account = $data['details']['account'];

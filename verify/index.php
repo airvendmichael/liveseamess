@@ -1,6 +1,9 @@
 <?php
 
+
 include '../header.php';
+
+
 
 function dataplan($network_id, $mysqli){
 $query = "SELECT Description, Amount, Code, Validity FROM dataplan WHERE network_id = $network_id";
