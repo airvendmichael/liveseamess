@@ -79,6 +79,6 @@ $input= file_get_contents('php://input');
 $data = json_decode($input, true);
 
 $date = date("Y-m-d H:i:s");
-$log_string = "\n***********************************\n\n" . $date." :" .json_encode($vendor)."\n\n Data: ".$input.;
+$log_string = "\n***********************************\n\n" . $date." :" .json_encode($vendor)."\n\n Data: ".$input;
 
 error_log($log_string,3,'/var/www/vhosts/api/secured/seamless/vend/request.log');
