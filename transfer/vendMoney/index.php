@@ -182,7 +182,7 @@ $data = ["amount" =>$amount,
 
 
 $response =  $tm->verify($data);
-//print_r($response);
+print_r($response);
 $resp = json_decode($response);
 error_log($response."\n",3,'request.log');
 $data["reference"] = $resp->reference;
