@@ -106,7 +106,8 @@ if($vendor['user_type'] == 1) {
 		}
 }
 
-
+print_r($provider);
+exit();
 
 //Call Banks
 
