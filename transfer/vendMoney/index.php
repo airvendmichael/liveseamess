@@ -81,8 +81,8 @@ if($vendor['user_type'] == 1) {
 			// Check for auto top up <- check distributor account
 			$vendor_credit = getVendorBalance($vendor['vendor_id'],$mysqli);
 		
-			$vendor_comm   = getVendorElectricityComm($vendor['vendor_id'],$type,$mysqli);
-		
+			$vendor_comm   = getVendorElectricityComm($vendor['vendor_id'],"1000",$mysqli);
+
 			$cost = $amount + $vendor_comm['commission'];
 			
 		
@@ -122,7 +122,7 @@ $date = date('Y-m-d H:i:s');
 $log_string = "\n\n" . $date . ' |Start Processor include: '.json_encode($payload). "\n";
 error_log($log_string,3,'vtu2_request.log');
 
-//***************************************************************************
+// ***************************************************************************
 if($provider ==1){
 	// Payant
 	$output = transferMoney($payload);
@@ -182,7 +182,7 @@ $data = ["amount" =>$amount,
 
 
 $response =  $tm->verify($data);
-print_r($response);
+
 $resp = json_decode($response);
 error_log($response."\n",3,'request.log');
 $data["reference"] = $resp->reference;
@@ -201,7 +201,7 @@ if(!in_array($response->status, $rep)){
 }
 
 
-//**************************************************************************
+// **************************************************************************
 
 $response = $output;
  
@@ -235,22 +235,23 @@ $log_sql = "UPDATE transaction_log set
 				status_code					= '$result',
 				product_type				= $type
 			WHERE transaction_id            = $transaction_id";				
+
 				
 $log_res        = mysqli_query($mysqli,$log_sql);
 
 
-$res = $output['data'];
+//$res = $output['data'];
 
-
+//print_r($provider);
 
 if($result == 0){
-
+//print_r($provider);
 	$wallet_pre = getVendorBalance($vendor['vendor_id'],$mysqli);
 	
 		// Vendor Comm
-		$distributor_comm = getDistributorElectricityComm($vendor['distributor_id'],$type,$mysqli);
+		$distributor_comm = getDistributorElectricityComm($vendor['distributor_id'],"1000",$mysqli);
 		
-		
+//		print_r($distributor_comm);
 		if($vendor['user_type'] == 1) {
 			// Pre-paid - update wallet balance
 			//echo "DEBUG: DEDUCTING CREDIT: ".$vendor['vendor_id']." : ".$amt;
