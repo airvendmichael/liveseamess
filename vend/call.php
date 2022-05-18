@@ -35,11 +35,8 @@ if($type <= 4 || $type == 27){
 			
 		
 	}
-	// if(strlen($result) == 0) {
-	// $result = 99999999;
-	// }
-	if(strlen($output) == 0) {
-		$result = 99999999;
+	if(strlen($result) == 0) {
+	$result = 99999999;
 	}
 
 

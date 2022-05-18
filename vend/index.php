@@ -179,8 +179,8 @@ $et        = $time_end - $time_start;
 
 $date = date('Y-m-d H:i:s');
 $log_string  = "\n\n" . $date . ' |REQUEST: '.$request . "\n";
-$log_string .= "\n\n" . $date . ' |RESPONSE: '.$response . "\n";
-$log_string .= "\n\n" . $date . ' |RESULT: '.json_encode($result ). "\n";
+$log_string .= "\n\n" . $date . ' |RESPONSE: '.json_encode($response). "\n";
+$log_string .= "\n\n" . $date . ' |RESULT: '.$result. "\n";
 $log_string .= "\n\n" . $date . ' |RESULT_TXT: '.$result_txt . "\n";
 error_log($log_string,3,'vtu2_request.log');
 	
