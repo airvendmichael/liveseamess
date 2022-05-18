@@ -18,13 +18,12 @@ if($type <= 4 || $type == 27){
 			
 			$tn = new SHAGOAPI($type, 2);
 			$output =  $tn->vend($data);
-			$result = $response;
 
 			$response = json_decode($output);
 			$rep = ["300","301","100","310", "500","501"];
 			if(!in_array($response->status, $rep)){
 				$status = TRUE;
-				$result      = $response;
+				$result      = 0;
 				$result_txt  = $response->message;
 				$response = $output;
 			}
