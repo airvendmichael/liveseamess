@@ -265,6 +265,7 @@ if($type==21) {
 							'serialNumber' => $externalId,
 							'vat'=>$vat,
 								'Expires' => "",
+								"arrearsBalance"=>$arrearsBalance,
 								'value' => $unit );
 
 					   	$resd['creditToken'] = $array;

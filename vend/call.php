@@ -6,6 +6,10 @@ if($type <= 4 || $type == 27){
 	if($network_id == 1){
         	include '/var/www/vhosts/api/airtel/ussd/processor/airtel_sender.php';
 	}
+	elseif($network_id == 3){
+		$end = 'glo_receiver.php';
+		include '/var/www/vhosts/api/airtel/ussd/processor/vpn_sender.php';
+	}
 	else{
 
         	// include '/var/www/vhosts/api/airtel/ussd/processor/'. $net['airtime_processor'];
@@ -15,7 +19,7 @@ if($type <= 4 || $type == 27){
 			$data['amount'] = $amount;
 			$data['account'] =$account;
 			$data['transaction_id'] = $transaction_id;
-			
+
 			$tn = new SHAGOAPI($type, 2);
 			$output =  $tn->vend($data);
 
@@ -32,17 +36,15 @@ if($type <= 4 || $type == 27){
 				$result_txt = $response->message;
 				$result = 99999999;
 			}
-			
-		
+
 	}
-	if(strlen($result) == 0) {
+	if(empty($result) && $result != 0) {
 	$result = 99999999;
 	}
 
 
 // Catch unset product type (airtime/Data)
 
-		
 } 
 
 
@@ -414,10 +416,11 @@ if($product_type == 17 || $product_type == 18 || $product_type == 19 || $product
 	
 if($type==21) {
 	require '/var/www/vhosts/api/lib/serviceProvider/EEDC.php';
-
+//	print_r($type);
 	$tx = new EEDC(21);
 	$resp = $tx->verify(["account"=>$account]);
-	
+//	print_r($resp);
+//exit();
 	$resp = json_decode($resp);
 	error_log("Verify EEDC\n".$account.json_encode($resp), 3, 'vtu2_request.log');
 	$cap = $tx->EEDCMaximumPurchase($resp->customer->tariffCode);
@@ -448,6 +451,7 @@ if($type==21) {
 		$unit = $resp->units;
 		$token = $resp->token;
 		$externalId = $resp->transactionId;
+		$arrearsBalance = $resp->arrearsBalance;
 	}else{
 		$resp = $tx->query($transaction_id);
 		$resp = json_decode($resp);

@@ -115,9 +115,9 @@ if($vendor['user_type'] == 1) {
 			// Check for auto top up <- check distributor account
 			$vendor_credit = getVendorBalance($vendor['vendor_id'],$mysqli);
 		
-			$vendor_comm   = getVendorComm($vendor['vendor_id'],$net['network_id'],$mysqli);
+			//$vendor_comm   = getVendorComm($vendor['vendor_id'],$net['network_id'],$mysqli);
 		
-			$cost = $amount - ($amount * ($vendor_comm['commission']/100));
+			$cost = $amount; //- ($amount * ($vendor_comm['commission']/100));
 			$max_amount = 5000;  //MNO TRANSACTION LIMIT
 	//echo 'DEBUG: CHECK CREDIT <br />';
 		
