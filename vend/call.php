@@ -10,6 +10,10 @@ if($type <= 4 || $type == 27){
 		$end = 'glo_receiver.php';
 		include '/var/www/vhosts/api/airtel/ussd/processor/vpn_sender.php';
 	}
+	elseif($network_id==2){
+		$end = 'mtn_receiver.php';
+                include '/var/www/vhosts/api/airtel/ussd/processor/vpn_sender.php';
+	}
 	else{
 
         	// include '/var/www/vhosts/api/airtel/ussd/processor/'. $net['airtime_processor'];
